@@ -1,5 +1,6 @@
 plugins {
     id 'com.google.protobuf' version '0.8.16'
+    id 'maven-publish'
 }
 
 dependencies {
@@ -50,6 +51,29 @@ protobuf {
                 java {
                     option 'lite'
                 }
+            }
+        }
+    }
+}
+
+// copied from spark-api
+publishing {
+    //repositories {
+    //    maven {
+    //        url = 'https://oss.sonatype.org/content/repositories/snapshots'
+    //        credentials {
+    //            username = sonatypeUsername
+    //            password = sonatypePassword
+    //        }
+    //    }
+    //}
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            pom {
+                name = 'spark'
+                description = 'spark is a performance profiling plugin/mod for Minecraft clients, servers and proxies.'
+                url = 'https://spark.lucko.me/'
             }
         }
     }
