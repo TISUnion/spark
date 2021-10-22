@@ -153,8 +153,9 @@ public class AsyncSampler extends AbstractSampler {
         }
     }
 
+    // TISCM: Added parameter threadNodesProcessor
     @Override
-    public SparkProtos.SamplerData toProto(PlatformInfo platformInfo, CommandSender creator, Comparator<? super Map.Entry<String, ThreadNode>> outputOrder, String comment, MergeMode mergeMode, ClassSourceLookup classSourceLookup) {
+    public SparkProtos.SamplerData toProto(PlatformInfo platformInfo, CommandSender creator, Comparator<? super Map.Entry<String, ThreadNode>> outputOrder, String comment, MergeMode mergeMode, ClassSourceLookup classSourceLookup, ThreadNodeProcessor threadNodesProcessor) {
         final SparkProtos.SamplerMetadata.Builder metadata = SparkProtos.SamplerMetadata.newBuilder()
                 .setPlatformMetadata(platformInfo.toData().toProto())
                 .setCreator(creator.toData().toProto())
@@ -178,8 +179,9 @@ public class AsyncSampler extends AbstractSampler {
         ClassSourceLookup.Visitor classSourceVisitor = ClassSourceLookup.createVisitor(classSourceLookup);
 
         for (Map.Entry<String, ThreadNode> entry : data) {
-            proto.addThreads(entry.getValue().toProto(mergeMode));
-            classSourceVisitor.visit(entry.getValue());
+            ThreadNode node = threadNodesProcessor.process(entry.getValue());
+            proto.addThreads(node.toProto(mergeMode));
+            classSourceVisitor.visit(node);
         }
 
         if (classSourceVisitor.hasMappings()) {

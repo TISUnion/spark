@@ -128,8 +128,9 @@ public class JavaSampler extends AbstractSampler implements Runnable {
         }
     }
 
+    // TISCM: Added parameter threadNodesProcessor
     @Override
-    public SamplerData toProto(PlatformInfo platformInfo, CommandSender creator, Comparator<? super Map.Entry<String, ThreadNode>> outputOrder, String comment, MergeMode mergeMode, ClassSourceLookup classSourceLookup) {
+    public SamplerData toProto(PlatformInfo platformInfo, CommandSender creator, Comparator<? super Map.Entry<String, ThreadNode>> outputOrder, String comment, MergeMode mergeMode, ClassSourceLookup classSourceLookup, ThreadNodeProcessor threadNodesProcessor) {
         final SamplerMetadata.Builder metadata = SamplerMetadata.newBuilder()
                 .setPlatformMetadata(platformInfo.toData().toProto())
                 .setCreator(creator.toData().toProto())
@@ -151,8 +152,9 @@ public class JavaSampler extends AbstractSampler implements Runnable {
         ClassSourceLookup.Visitor classSourceVisitor = ClassSourceLookup.createVisitor(classSourceLookup);
 
         for (Map.Entry<String, ThreadNode> entry : data) {
-            proto.addThreads(entry.getValue().toProto(mergeMode));
-            classSourceVisitor.visit(entry.getValue());
+            ThreadNode node = threadNodesProcessor.process(entry.getValue());
+            proto.addThreads(node.toProto(mergeMode));
+            classSourceVisitor.visit(node);
         }
 
         if (classSourceVisitor.hasMappings()) {

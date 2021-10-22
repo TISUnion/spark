@@ -21,7 +21,7 @@ include (
 //        'spark-sponge8',
 //        'spark-forge',
 //        'spark-forge1122',
-//        'spark-fabric',
+        'spark-fabric',
 //        'spark-nukkit',
 //        'spark-waterdog',
 //        'spark-universal'

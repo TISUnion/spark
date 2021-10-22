@@ -23,6 +23,7 @@ package me.lucko.spark.common;
 import me.lucko.spark.api.Spark;
 import me.lucko.spark.common.command.sender.CommandSender;
 import me.lucko.spark.common.platform.PlatformInfo;
+import me.lucko.spark.common.sampler.Sampler;
 import me.lucko.spark.common.sampler.ThreadDumper;
 import me.lucko.spark.common.tick.TickHook;
 import me.lucko.spark.common.tick.TickReporter;
@@ -122,4 +123,8 @@ public interface SparkPlugin {
 
     }
 
+    // TISCM: added interface
+    default Sampler.ThreadNodeProcessor getThreadNodesProcessor() {
+        return threadNode -> threadNode;
+    }
 }
