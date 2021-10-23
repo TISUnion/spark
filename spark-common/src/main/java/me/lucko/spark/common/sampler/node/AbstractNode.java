@@ -55,6 +55,11 @@ public abstract class AbstractNode {
         return this.children.values();
     }
 
+    // TISCM: Added getter
+    public Map<StackTraceNode.Description, StackTraceNode> getChildrenMap() {
+        return this.children;
+    }
+
     /**
      * Logs the given stack trace against this node and its children.
      *
