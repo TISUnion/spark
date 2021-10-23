@@ -125,6 +125,6 @@ public interface SparkPlugin {
 
     // TISCM: added interface
     default Sampler.ThreadNodeProcessor getThreadNodesProcessor() {
-        return threadNode -> threadNode;
+        return threadNode -> {};
     }
 }

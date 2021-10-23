@@ -177,11 +177,11 @@ public class AsyncSampler extends AbstractSampler {
         data.sort(outputOrder);
 
         ClassSourceLookup.Visitor classSourceVisitor = ClassSourceLookup.createVisitor(classSourceLookup);
+        data.forEach(entry -> threadNodesProcessor.process(entry.getValue()));
 
         for (Map.Entry<String, ThreadNode> entry : data) {
-            ThreadNode node = threadNodesProcessor.process(entry.getValue());
-            proto.addThreads(node.toProto(mergeMode));
-            classSourceVisitor.visit(node);
+            proto.addThreads(entry.getValue().toProto(mergeMode));
+            classSourceVisitor.visit(entry.getValue());
         }
 
         if (classSourceVisitor.hasMappings()) {

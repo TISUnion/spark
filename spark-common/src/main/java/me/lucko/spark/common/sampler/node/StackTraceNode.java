@@ -27,6 +27,7 @@ import me.lucko.spark.proto.SparkProtos;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.Objects;
+import java.util.function.Function;
 
 /**
  * Represents a stack trace element within the {@link AbstractNode node} structure.
@@ -38,11 +39,17 @@ public final class StackTraceNode extends AbstractNode implements Comparable<Sta
      */
     public static final int NULL_LINE_NUMBER = -1;
 
+    // TISCM: removed final
     /** A description of the element */
-    private final Description description;
+    private Description description;
 
     public StackTraceNode(Description description) {
         this.description = description;
+    }
+
+    // TISCM: Added method
+    public void updateDescription(Function<Description, Description> updater) {
+        this.description = updater.apply(this.description);
     }
 
     public String getClassName() {

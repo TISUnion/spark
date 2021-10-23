@@ -71,7 +71,7 @@ public interface Sampler {
     // Methods used to export the sampler data to the web viewer.
     default SamplerData toProto(PlatformInfo platformInfo, CommandSender creator, Comparator<? super Map.Entry<String, ThreadNode>> outputOrder, String comment, MergeMode mergeMode, ClassSourceLookup classSourceLookup)
     {
-        return toProto(platformInfo, creator, outputOrder, comment, mergeMode, classSourceLookup, threadNode -> threadNode);
+        return toProto(platformInfo, creator, outputOrder, comment, mergeMode, classSourceLookup, threadNode -> {});
     }
 
     // TISCM: Added for stacktrace deobfuscator
@@ -81,6 +81,6 @@ public interface Sampler {
     @FunctionalInterface
     interface ThreadNodeProcessor
     {
-        ThreadNode process(ThreadNode threadNode);
+        void process(ThreadNode threadNode);
     }
 }
