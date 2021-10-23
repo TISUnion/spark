@@ -47,9 +47,9 @@ public final class StackTraceNode extends AbstractNode implements Comparable<Sta
         this.description = description;
     }
 
-    // TISCM: Added method
-    public void updateDescription(Function<Description, Description> updater) {
-        this.description = updater.apply(this.description);
+    // TISCM: Added setter
+    public void setDescription(Description description) {
+        this.description = description;
     }
 
     public String getClassName() {
