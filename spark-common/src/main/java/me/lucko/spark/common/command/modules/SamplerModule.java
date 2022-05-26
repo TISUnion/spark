@@ -306,8 +306,7 @@ public class SamplerModule implements CommandModule {
 
     private void handleUpload(SparkPlatform platform, CommandResponseHandler resp, Sampler sampler, ThreadNodeOrder threadOrder, String comment, MergeMode mergeMode, boolean saveToFileFlag) {
         // TISCM: added argument
-        SparkProtos.SamplerData output = sampler.toProto(platform.getPlugin().getPlatformInfo(), resp.sender(), threadOrder, comment, mergeMode, platform.getClassSourceLookup(), platform.getPlugin().getThreadNodesProcessor());
-        SparkSamplerProtos.SamplerData output = sampler.toProto(platform, resp.sender(), threadOrder, comment, mergeMode, platform.createClassSourceLookup());
+        SparkSamplerProtos.SamplerData output = sampler.toProto(platform, resp.sender(), threadOrder, comment, mergeMode, platform.createClassSourceLookup(), platform.getPlugin().getThreadNodesProcessor());
 
         boolean saveToFile = false;
         if (saveToFileFlag) {

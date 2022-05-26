@@ -68,13 +68,13 @@ public interface Sampler {
 
     // TISCM: Keep original interface
     // Methods used to export the sampler data to the web viewer.
-    SamplerData toProto(SparkPlatform platform, CommandSender creator, Comparator<ThreadNode> outputOrder, String comment, MergeMode mergeMode, ClassSourceLookup classSourceLookup);
+    default SamplerData toProto(SparkPlatform platform, CommandSender creator, Comparator<ThreadNode> outputOrder, String comment, MergeMode mergeMode, ClassSourceLookup classSourceLookup)
     {
-        return toProto(platformInfo, creator, outputOrder, comment, mergeMode, classSourceLookup, threadNode -> {});
+        return toProto(platform, creator, outputOrder, comment, mergeMode, classSourceLookup, threadNode -> {});
     }
 
     // TISCM: Added for stacktrace deobfuscator
-    SamplerData toProto(PlatformInfo platformInfo, CommandSender creator, Comparator<? super Map.Entry<String, ThreadNode>> outputOrder, String comment, MergeMode mergeMode, ClassSourceLookup classSourceLookup, ThreadNodeProcessor threadNodesProcessor);
+    SamplerData toProto(SparkPlatform platform, CommandSender creator, Comparator<ThreadNode> outputOrder, String comment, MergeMode mergeMode, ClassSourceLookup classSourceLookup, ThreadNodeProcessor threadNodesProcessor);
 
     // TISCM: added FunctionalInterface class
     @FunctionalInterface

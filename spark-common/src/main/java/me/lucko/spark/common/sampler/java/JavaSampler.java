@@ -125,10 +125,10 @@ public class JavaSampler extends AbstractSampler implements Runnable {
 
     // TISCM: Added parameter threadNodesProcessor
     @Override
-    public SamplerData toProto(SparkPlatform platform, CommandSender creator, Comparator<ThreadNode> outputOrder, String comment, MergeMode mergeMode, ClassSourceLookup classSourceLookup) {
+    public SamplerData toProto(SparkPlatform platform, CommandSender creator, Comparator<ThreadNode> outputOrder, String comment, MergeMode mergeMode, ClassSourceLookup classSourceLookup, ThreadNodeProcessor threadNodesProcessor) {
         SamplerData.Builder proto = SamplerData.newBuilder();
         writeMetadataToProto(proto, platform, creator, comment, this.dataAggregator);
-        writeDataToProto(proto, this.dataAggregator, outputOrder, mergeMode, classSourceLookup);
+        writeDataToProto(proto, this.dataAggregator, outputOrder, mergeMode, classSourceLookup, threadNodesProcessor);
         return proto.build();
     }
 

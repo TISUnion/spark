@@ -127,9 +127,12 @@ public abstract class AbstractSampler implements Sampler {
         proto.setMetadata(metadata);
     }
 
-    protected void writeDataToProto(SamplerData.Builder proto, DataAggregator dataAggregator, Comparator<ThreadNode> outputOrder, MergeMode mergeMode, ClassSourceLookup classSourceLookup) {
+    // TISCM: Added parameter threadNodesProcessor
+    protected void writeDataToProto(SamplerData.Builder proto, DataAggregator dataAggregator, Comparator<ThreadNode> outputOrder, MergeMode mergeMode, ClassSourceLookup classSourceLookup, ThreadNodeProcessor threadNodesProcessor) {
         List<ThreadNode> data = dataAggregator.exportData();
         data.sort(outputOrder);
+
+        data.forEach(threadNodesProcessor::process);
 
         ClassSourceLookup.Visitor classSourceVisitor = ClassSourceLookup.createVisitor(classSourceLookup);
 
