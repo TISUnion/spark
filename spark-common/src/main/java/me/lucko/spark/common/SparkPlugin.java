@@ -22,7 +22,9 @@ package me.lucko.spark.common;
 
 import me.lucko.spark.api.Spark;
 import me.lucko.spark.common.command.sender.CommandSender;
+import me.lucko.spark.common.monitor.ping.PlayerPingProvider;
 import me.lucko.spark.common.platform.PlatformInfo;
+import me.lucko.spark.common.platform.serverconfig.ServerConfigProvider;
 import me.lucko.spark.common.sampler.Sampler;
 import me.lucko.spark.common.sampler.ThreadDumper;
 import me.lucko.spark.common.tick.TickHook;
@@ -30,6 +32,7 @@ import me.lucko.spark.common.tick.TickReporter;
 import me.lucko.spark.common.util.ClassSourceLookup;
 
 import java.nio.file.Path;
+import java.util.logging.Level;
 import java.util.stream.Stream;
 
 /**
@@ -73,6 +76,14 @@ public interface SparkPlugin {
     void executeAsync(Runnable task);
 
     /**
+     * Print to the plugin logger.
+     *
+     * @param level the log level
+     * @param msg the message
+     */
+    void log(Level level, String msg);
+
+    /**
      * Gets the default {@link ThreadDumper} to be used by the plugin.
      *
      * @return the default thread dumper
@@ -110,6 +121,26 @@ public interface SparkPlugin {
      */
     default ClassSourceLookup createClassSourceLookup() {
         return ClassSourceLookup.NO_OP;
+    }
+
+    /**
+     * Creates a player ping provider function.
+     *
+     * <p>Returns {@code null} if the platform does not support querying player pings</p>
+     *
+     * @return the player ping provider function
+     */
+    default PlayerPingProvider createPlayerPingProvider() {
+        return null;
+    }
+
+    /**
+     * Creates a server config provider.
+     *
+     * @return the server config provider function
+     */
+    default ServerConfigProvider createServerConfigProvider() {
+        return ServerConfigProvider.NO_OP;
     }
 
     /**

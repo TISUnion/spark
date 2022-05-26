@@ -20,15 +20,14 @@
 
 package me.lucko.spark.common.sampler;
 
+import me.lucko.spark.common.SparkPlatform;
 import me.lucko.spark.common.command.sender.CommandSender;
-import me.lucko.spark.common.platform.PlatformInfo;
 import me.lucko.spark.common.sampler.node.MergeMode;
 import me.lucko.spark.common.sampler.node.ThreadNode;
 import me.lucko.spark.common.util.ClassSourceLookup;
-import me.lucko.spark.proto.SparkProtos.SamplerData;
+import me.lucko.spark.proto.SparkSamplerProtos.SamplerData;
 
 import java.util.Comparator;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -69,7 +68,7 @@ public interface Sampler {
 
     // TISCM: Keep original interface
     // Methods used to export the sampler data to the web viewer.
-    default SamplerData toProto(PlatformInfo platformInfo, CommandSender creator, Comparator<? super Map.Entry<String, ThreadNode>> outputOrder, String comment, MergeMode mergeMode, ClassSourceLookup classSourceLookup)
+    SamplerData toProto(SparkPlatform platform, CommandSender creator, Comparator<ThreadNode> outputOrder, String comment, MergeMode mergeMode, ClassSourceLookup classSourceLookup);
     {
         return toProto(platformInfo, creator, outputOrder, comment, mergeMode, classSourceLookup, threadNode -> {});
     }

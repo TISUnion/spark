@@ -25,12 +25,15 @@ import com.google.inject.Inject;
 import me.lucko.spark.common.SparkPlatform;
 import me.lucko.spark.common.SparkPlugin;
 import me.lucko.spark.common.command.sender.CommandSender;
+import me.lucko.spark.common.monitor.ping.PlayerPingProvider;
 import me.lucko.spark.common.platform.PlatformInfo;
 import me.lucko.spark.common.sampler.ThreadDumper;
 import me.lucko.spark.common.tick.TickHook;
+import me.lucko.spark.common.util.ClassSourceLookup;
 
 import net.kyori.adventure.text.Component;
 
+import org.apache.logging.log4j.Logger;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.Server;
@@ -52,6 +55,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -59,6 +63,7 @@ import java.util.stream.Stream;
 public class Sponge8SparkPlugin implements SparkPlugin {
 
     private final PluginContainer pluginContainer;
+    private final Logger logger;
     private final Game game;
     private final Path configDirectory;
     private final ExecutorService asyncExecutor;
@@ -67,8 +72,9 @@ public class Sponge8SparkPlugin implements SparkPlugin {
     private final ThreadDumper.GameThread threadDumper = new ThreadDumper.GameThread();
 
     @Inject
-    public Sponge8SparkPlugin(PluginContainer pluginContainer, Game game, @ConfigDir(sharedRoot = false) Path configDirectory) {
+    public Sponge8SparkPlugin(PluginContainer pluginContainer, Logger logger, Game game, @ConfigDir(sharedRoot = false) Path configDirectory) {
         this.pluginContainer = pluginContainer;
+        this.logger = logger;
         this.game = game;
         this.configDirectory = configDirectory;
         this.asyncExecutor = game.asyncScheduler().executor(pluginContainer);
@@ -120,6 +126,19 @@ public class Sponge8SparkPlugin implements SparkPlugin {
     }
 
     @Override
+    public void log(Level level, String msg) {
+        if (level == Level.INFO) {
+            this.logger.info(msg);
+        } else if (level == Level.WARNING) {
+            this.logger.warn(msg);
+        } else if (level == Level.SEVERE) {
+            this.logger.error(msg);
+        } else {
+            throw new IllegalArgumentException(level.getName());
+        }
+    }
+
+    @Override
     public ThreadDumper getDefaultThreadDumper() {
         return this.threadDumper.get();
     }
@@ -127,6 +146,20 @@ public class Sponge8SparkPlugin implements SparkPlugin {
     @Override
     public TickHook createTickHook() {
         return new Sponge8TickHook(this.pluginContainer, this.game);
+    }
+
+    @Override
+    public ClassSourceLookup createClassSourceLookup() {
+        return new Sponge8ClassSourceLookup(this.game);
+    }
+
+    @Override
+    public PlayerPingProvider createPlayerPingProvider() {
+        if (this.game.isServerAvailable()) {
+            return new Sponge8PlayerPingProvider(this.game.server());
+        } else {
+            return null;
+        }
     }
 
     @Override

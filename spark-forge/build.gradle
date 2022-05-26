@@ -1,6 +1,6 @@
 buildscript {
     repositories {
-        maven { url = "https://files.minecraftforge.net/maven" }
+        maven { url = "https://maven.minecraftforge.net" }
         mavenCentral()
     }
     dependencies {
@@ -14,14 +14,13 @@ plugins {
 
 apply plugin: 'net.minecraftforge.gradle'
 
-compileJava {
-    // override, compile targeting J16
-    options.compilerArgs.removeAll(['--release', '8'])
-    options.compilerArgs.addAll(['--release', '16'])
+tasks.withType(JavaCompile) {
+    // override, compile targeting J17
+    options.release = 17
 }
 
 minecraft {
-    mappings channel: 'official', version: '1.17.1'
+    mappings channel: 'official', version: '1.18.2'
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
 }
 
@@ -31,7 +30,7 @@ configurations {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.17.1-37.0.1'
+    minecraft 'net.minecraftforge:forge:1.18.2-40.0.1'
     shade project(':spark-common')
 }
 
@@ -50,7 +49,7 @@ processResources {
 }
 
 shadowJar {
-    archiveName = 'spark-forge.jar'
+    archiveName = "spark-${project.pluginVersion}-forge.jar"
     configurations = [project.configurations.shade]
 
     relocate 'okio', 'me.lucko.spark.lib.okio'

@@ -129,10 +129,10 @@ public class GcMonitoringModule implements CommandModule {
                         );
                     }
 
-                    if (report.size() == 1) {
+                    if (collectorStats.isEmpty()) {
                         resp.replyPrefixed(text("No garbage collectors are reporting data."));
                     } else {
-                        report.forEach(resp::reply);
+                        resp.reply(report);
                     }
                 })
                 .build()
@@ -181,10 +181,6 @@ public class GcMonitoringModule implements CommandModule {
             this.platform = platform;
             this.resp = resp;
             addListener(this);
-        }
-
-        protected void sendMessage(Component message) {
-            this.resp.broadcastPrefixed(message);
         }
 
         @Override
@@ -259,7 +255,7 @@ public class GcMonitoringModule implements CommandModule {
                     }
                 }
 
-                report.forEach(this.resp::broadcast);
+                this.resp.broadcast(report);
             });
         }
 

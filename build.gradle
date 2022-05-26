@@ -1,6 +1,10 @@
+plugins {
+    id 'org.cadixdev.licenser' version '0.6.1' apply false
+}
+
 allprojects {
     group = 'me.lucko'
-    version = '1.6-SNAPSHOT'
+    version = '1.9-SNAPSHOT'
 
     configurations {
         compileClasspath // Fabric-loom needs this for remap jar for some reason
@@ -11,22 +15,27 @@ subprojects {
     apply plugin: 'java'
     apply plugin: 'idea'
     apply plugin: 'java-library'
+    apply plugin: 'org.cadixdev.licenser'
 
     ext {
-        pluginVersion = '1.6.2'
+        baseVersion = '1.9'
+        patchVersion = determinePatchVersion()
+        pluginVersion = baseVersion + '.' + patchVersion
         pluginDescription = 'spark is a performance profiling plugin/mod for Minecraft clients, servers and proxies.'
-    }
-
-    compileJava {
-        options.compilerArgs.addAll(['--release', '8'])
     }
 
     tasks.withType(JavaCompile) {
         options.encoding = 'UTF-8'
+        options.release = 8
     }
 
     processResources {
         duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    }
+
+    license {
+        header = rootProject.file('HEADER.txt')
+        include '**/*.java'
     }
 
     repositories {
@@ -36,4 +45,15 @@ subprojects {
         maven { url "https://jitpack.io" }
     }
 
+}
+
+def determinePatchVersion() {
+    def tagInfo = new ByteArrayOutputStream()
+    exec {
+        commandLine 'git', 'describe', '--tags'
+        standardOutput = tagInfo
+    }
+    tagInfo = tagInfo.toString()
+
+    return tagInfo.contains('-') ? tagInfo.split("-")[1] : 0
 }

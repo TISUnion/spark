@@ -32,11 +32,15 @@ import com.velocitypowered.api.proxy.ProxyServer;
 
 import me.lucko.spark.common.SparkPlatform;
 import me.lucko.spark.common.SparkPlugin;
+import me.lucko.spark.common.monitor.ping.PlayerPingProvider;
 import me.lucko.spark.common.platform.PlatformInfo;
 import me.lucko.spark.common.util.ClassSourceLookup;
 
+import org.slf4j.Logger;
+
 import java.nio.file.Path;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.stream.Stream;
 
 @Plugin(
@@ -49,13 +53,15 @@ import java.util.stream.Stream;
 public class VelocitySparkPlugin implements SparkPlugin, SimpleCommand {
 
     private final ProxyServer proxy;
+    private final Logger logger;
     private final Path configDirectory;
 
     private SparkPlatform platform;
 
     @Inject
-    public VelocitySparkPlugin(ProxyServer proxy, @DataDirectory Path configDirectory) {
+    public VelocitySparkPlugin(ProxyServer proxy, Logger logger, @DataDirectory Path configDirectory) {
         this.proxy = proxy;
+        this.logger = logger;
         this.configDirectory = configDirectory;
     }
 
@@ -110,8 +116,26 @@ public class VelocitySparkPlugin implements SparkPlugin, SimpleCommand {
     }
 
     @Override
+    public void log(Level level, String msg) {
+        if (level == Level.INFO) {
+            this.logger.info(msg);
+        } else if (level == Level.WARNING) {
+            this.logger.warn(msg);
+        } else if (level == Level.SEVERE) {
+            this.logger.error(msg);
+        } else {
+            throw new IllegalArgumentException(level.getName());
+        }
+    }
+
+    @Override
     public ClassSourceLookup createClassSourceLookup() {
         return new VelocityClassSourceLookup(this.proxy.getPluginManager());
+    }
+
+    @Override
+    public PlayerPingProvider createPlayerPingProvider() {
+        return new VelocityPlayerPingProvider(this.proxy);
     }
 
     @Override

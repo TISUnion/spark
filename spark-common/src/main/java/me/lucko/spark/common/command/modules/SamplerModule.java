@@ -40,7 +40,7 @@ import me.lucko.spark.common.sampler.async.AsyncSampler;
 import me.lucko.spark.common.sampler.node.MergeMode;
 import me.lucko.spark.common.tick.TickHook;
 import me.lucko.spark.common.util.MethodDisambiguator;
-import me.lucko.spark.proto.SparkProtos;
+import me.lucko.spark.proto.SparkSamplerProtos;
 
 import net.kyori.adventure.text.event.ClickEvent;
 
@@ -217,7 +217,7 @@ public class SamplerModule implements CommandModule {
         if (ticksOver != -1) {
             builder.ticksOver(ticksOver, tickHook);
         }
-        Sampler sampler = this.activeSampler = builder.start();
+        Sampler sampler = this.activeSampler = builder.start(platform);
 
         resp.broadcastPrefixed(text()
                 .append(text("Profiler now active!", GOLD))
@@ -307,6 +307,7 @@ public class SamplerModule implements CommandModule {
     private void handleUpload(SparkPlatform platform, CommandResponseHandler resp, Sampler sampler, ThreadNodeOrder threadOrder, String comment, MergeMode mergeMode, boolean saveToFileFlag) {
         // TISCM: added argument
         SparkProtos.SamplerData output = sampler.toProto(platform.getPlugin().getPlatformInfo(), resp.sender(), threadOrder, comment, mergeMode, platform.getClassSourceLookup(), platform.getPlugin().getThreadNodesProcessor());
+        SparkSamplerProtos.SamplerData output = sampler.toProto(platform, resp.sender(), threadOrder, comment, mergeMode, platform.createClassSourceLookup());
 
         boolean saveToFile = false;
         if (saveToFileFlag) {
@@ -325,7 +326,7 @@ public class SamplerModule implements CommandModule {
                 );
 
                 platform.getActivityLog().addToLog(Activity.urlActivity(resp.sender(), System.currentTimeMillis(), "Profiler", url));
-            } catch (IOException e) {
+            } catch (Exception e) {
                 resp.broadcastPrefixed(text("An error occurred whilst uploading the results. Attempting to save to disk instead.", RED));
                 e.printStackTrace();
                 saveToFile = true;

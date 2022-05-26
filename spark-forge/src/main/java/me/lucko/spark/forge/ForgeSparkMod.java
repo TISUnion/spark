@@ -24,7 +24,7 @@ import me.lucko.spark.forge.plugin.ForgeClientSparkPlugin;
 import me.lucko.spark.forge.plugin.ForgeServerSparkPlugin;
 
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.RegisterCommandsEvent;
+import net.minecraftforge.event.server.ServerAboutToStartEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.IExtensionPoint;
 import net.minecraftforge.fml.ModContainer;
@@ -34,7 +34,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLPaths;
-import net.minecraftforge.fmllegacy.network.FMLNetworkConstants;
+import net.minecraftforge.network.NetworkConstants;
 
 import java.nio.file.Path;
 
@@ -49,7 +49,7 @@ public class ForgeSparkMod {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::clientInit);
         MinecraftForge.EVENT_BUS.register(this);
 
-        ModLoadingContext.get().registerExtensionPoint(IExtensionPoint.DisplayTest.class, () -> new IExtensionPoint.DisplayTest(() -> FMLNetworkConstants.IGNORESERVERONLY, (a, b) -> true));
+        ModLoadingContext.get().registerExtensionPoint(IExtensionPoint.DisplayTest.class, () -> new IExtensionPoint.DisplayTest(() -> NetworkConstants.IGNORESERVERONLY, (a, b) -> true));
     }
 
     public String getVersion() {
@@ -61,13 +61,13 @@ public class ForgeSparkMod {
         this.configDirectory = FMLPaths.CONFIGDIR.get().resolve(this.container.getModId());
     }
 
-    @SubscribeEvent
-    public void registerCommands(RegisterCommandsEvent e) {
-        ForgeServerSparkPlugin.register(this, e);
-    }
-
     public void clientInit(FMLClientSetupEvent e) {
         ForgeClientSparkPlugin.register(this, e);
+    }
+
+    @SubscribeEvent
+    public void serverInit(ServerAboutToStartEvent e) {
+        ForgeServerSparkPlugin.register(this, e);
     }
 
     public Path getConfigDirectory() {

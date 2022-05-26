@@ -22,6 +22,7 @@ package me.lucko.spark.bungeecord;
 
 import me.lucko.spark.common.SparkPlatform;
 import me.lucko.spark.common.SparkPlugin;
+import me.lucko.spark.common.monitor.ping.PlayerPingProvider;
 import me.lucko.spark.common.platform.PlatformInfo;
 import me.lucko.spark.common.util.ClassSourceLookup;
 
@@ -32,6 +33,7 @@ import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.TabExecutor;
 
 import java.nio.file.Path;
+import java.util.logging.Level;
 import java.util.stream.Stream;
 
 public class BungeeCordSparkPlugin extends Plugin implements SparkPlugin {
@@ -80,8 +82,18 @@ public class BungeeCordSparkPlugin extends Plugin implements SparkPlugin {
     }
 
     @Override
+    public void log(Level level, String msg) {
+        getLogger().log(level, msg);
+    }
+
+    @Override
     public ClassSourceLookup createClassSourceLookup() {
         return new BungeeCordClassSourceLookup();
+    }
+
+    @Override
+    public PlayerPingProvider createPlayerPingProvider() {
+        return new BungeeCordPlayerPingProvider(getProxy());
     }
 
     @Override
