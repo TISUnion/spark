@@ -43,12 +43,18 @@ public class BackgroundSamplerManager {
         this.configuration = configuration;
         this.enabled = this.configuration.getBoolean(
                 OPTION_ENABLED,
-                this.platform.getPlugin().getPlatformInfo().getType() == PlatformInfo.Type.SERVER
+                // TISCM: don't enable the background sampler by default
+                false
         );
     }
 
     public void initialise() {
         if (!this.enabled) {
+            // TISCM: Set default value (false ofc) for missing OPTION_ENABLED
+            if (!this.configuration.contains(OPTION_ENABLED)) {
+                this.configuration.setBoolean(OPTION_ENABLED, false);
+                this.configuration.save();
+            }
             return;
         }
 
