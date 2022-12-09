@@ -18,35 +18,23 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.lucko.spark.common.sampler;
+package me.lucko.spark.fabric.mixin;
 
-import me.lucko.spark.common.sampler.node.ThreadNode;
+import net.minecraft.entity.Entity;
+import net.minecraft.server.world.ServerEntityManager;
+import net.minecraft.world.entity.EntityIndex;
+import net.minecraft.world.entity.SectionedEntityCache;
 
-import java.util.Comparator;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.gen.Accessor;
 
-/**
- * Methods of ordering {@link ThreadNode}s in the output data.
- */
-public enum ThreadNodeOrder implements Comparator<ThreadNode> {
+@Mixin(ServerEntityManager.class)
+public interface ServerEntityManagerAccessor {
 
-    /**
-     * Order by the name of the thread (alphabetically)
-     */
-    BY_NAME {
-        @Override
-        public int compare(ThreadNode o1, ThreadNode o2) {
-            return o1.getThreadLabel().compareTo(o2.getThreadLabel());
-        }
-    },
+    @Accessor
+    SectionedEntityCache<Entity> getCache();
 
-    /**
-     * Order by the time taken by the thread (most time taken first)
-     */
-    BY_TIME {
-        @Override
-        public int compare(ThreadNode o1, ThreadNode o2) {
-            return -Double.compare(o1.getTotalTime(), o2.getTotalTime());
-        }
-    }
+    @Accessor
+    EntityIndex<?> getIndex();
 
 }

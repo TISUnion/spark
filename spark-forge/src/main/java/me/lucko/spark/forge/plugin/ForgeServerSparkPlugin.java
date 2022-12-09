@@ -30,15 +30,22 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 
 import me.lucko.spark.common.monitor.ping.PlayerPingProvider;
+import me.lucko.spark.common.platform.MetadataProvider;
 import me.lucko.spark.common.platform.PlatformInfo;
+import me.lucko.spark.common.platform.serverconfig.ServerConfigProvider;
+import me.lucko.spark.common.platform.world.WorldInfoProvider;
+import me.lucko.spark.common.sampler.ThreadDumper;
 import me.lucko.spark.common.tick.TickHook;
 import me.lucko.spark.common.tick.TickReporter;
 import me.lucko.spark.forge.ForgeCommandSender;
+import me.lucko.spark.forge.ForgeExtraMetadataProvider;
 import me.lucko.spark.forge.ForgePlatformInfo;
 import me.lucko.spark.forge.ForgePlayerPingProvider;
+import me.lucko.spark.forge.ForgeServerConfigProvider;
 import me.lucko.spark.forge.ForgeSparkMod;
 import me.lucko.spark.forge.ForgeTickHook;
 import me.lucko.spark.forge.ForgeTickReporter;
+import me.lucko.spark.forge.ForgeWorldInfoProvider;
 
 import net.minecraft.commands.CommandSource;
 import net.minecraft.commands.CommandSourceStack;
@@ -56,11 +63,11 @@ import net.minecraftforge.server.permission.nodes.PermissionNode;
 import net.minecraftforge.server.permission.nodes.PermissionNode.PermissionResolver;
 import net.minecraftforge.server.permission.nodes.PermissionTypes;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -72,11 +79,13 @@ public class ForgeServerSparkPlugin extends ForgeSparkPlugin implements Command<
     }
 
     private final MinecraftServer server;
+    private final ThreadDumper gameThreadDumper;
     private Map<String, PermissionNode<Boolean>> registeredPermissions = Collections.emptyMap();
 
     public ForgeServerSparkPlugin(ForgeSparkMod mod, MinecraftServer server) {
         super(mod);
         this.server = server;
+        this.gameThreadDumper = new ThreadDumper.Specific(server.getRunningThread());
     }
 
     @Override
@@ -119,10 +128,24 @@ public class ForgeServerSparkPlugin extends ForgeSparkPlugin implements Command<
 
         // register permissions with forge & keep a copy for lookup
         ImmutableMap.Builder<String, PermissionNode<Boolean>> builder = ImmutableMap.builder();
+
+        Map<String, PermissionNode<?>> alreadyRegistered = e.getNodes().stream().collect(Collectors.toMap(PermissionNode::getNodeName, Function.identity()));
+
         for (String permission : permissions) {
+            String permissionString = "spark." + permission;
+
+            // there's a weird bug where it seems that this listener can be called twice, causing an
+            // IllegalArgumentException to be thrown the second time e.addNodes is called.
+            PermissionNode<?> existing = alreadyRegistered.get(permissionString);
+            if (existing != null) {
+                //noinspection unchecked
+                builder.put(permissionString, (PermissionNode<Boolean>) existing);
+                continue;
+            }
+
             PermissionNode<Boolean> node = new PermissionNode<>("spark", permission, PermissionTypes.BOOLEAN, defaultValue);
             e.addNodes(node);
-            builder.put("spark." + permission, node);
+            builder.put(permissionString, node);
         }
         this.registeredPermissions = builder.build();
     }
@@ -138,33 +161,24 @@ public class ForgeServerSparkPlugin extends ForgeSparkPlugin implements Command<
 
     @Override
     public int run(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
-        String[] args = processArgs(context, false);
+        String[] args = processArgs(context, false, "/spark", "spark");
         if (args == null) {
             return 0;
         }
 
-        this.threadDumper.ensureSetup();
-        this.platform.executeCommand(new ForgeCommandSender(context.getSource().source, this), args);
+        CommandSource source = context.getSource().getEntity() != null ? context.getSource().getEntity() : context.getSource().getServer();
+        this.platform.executeCommand(new ForgeCommandSender(source, this), args);
         return Command.SINGLE_SUCCESS;
     }
 
     @Override
     public CompletableFuture<Suggestions> getSuggestions(CommandContext<CommandSourceStack> context, SuggestionsBuilder builder) throws CommandSyntaxException {
-        String[] args = processArgs(context, true);
+        String[] args = processArgs(context, true, "/spark", "spark");
         if (args == null) {
             return Suggestions.empty();
         }
 
         return generateSuggestions(new ForgeCommandSender(context.getSource().getPlayerOrException(), this), args, builder);
-    }
-
-    private static String [] processArgs(CommandContext<CommandSourceStack> context, boolean tabComplete) {
-        String[] split = context.getInput().split(" ", tabComplete ? -1 : 0);
-        if (split.length == 0 || !split[0].equals("/spark") && !split[0].equals("spark")) {
-            return null;
-        }
-
-        return Arrays.copyOfRange(split, 1, split.length);
     }
 
     @Override
@@ -193,6 +207,16 @@ public class ForgeServerSparkPlugin extends ForgeSparkPlugin implements Command<
     }
 
     @Override
+    public void executeSync(Runnable task) {
+        this.server.executeIfPossible(task);
+    }
+
+    @Override
+    public ThreadDumper getDefaultThreadDumper() {
+        return this.gameThreadDumper;
+    }
+
+    @Override
     public TickHook createTickHook() {
         return new ForgeTickHook(TickEvent.Type.SERVER);
     }
@@ -205,6 +229,21 @@ public class ForgeServerSparkPlugin extends ForgeSparkPlugin implements Command<
     @Override
     public PlayerPingProvider createPlayerPingProvider() {
         return new ForgePlayerPingProvider(this.server);
+    }
+
+    @Override
+    public ServerConfigProvider createServerConfigProvider() {
+        return new ForgeServerConfigProvider();
+    }
+
+    @Override
+    public MetadataProvider createExtraMetadataProvider() {
+        return new ForgeExtraMetadataProvider(this.server.getPackRepository());
+    }
+
+    @Override
+    public WorldInfoProvider createWorldInfoProvider() {
+        return new ForgeWorldInfoProvider.Server(this.server);
     }
 
     @Override

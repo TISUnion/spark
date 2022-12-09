@@ -18,29 +18,27 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.lucko.spark.common.util;
+package me.lucko.spark.common.platform.world;
 
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
+/**
+ * Information about a given chunk.
+ *
+ * @param <E> the type used to describe entities
+ */
+public interface ChunkInfo<E> {
 
-import java.io.IOException;
+    int getX();
 
-public class AbstractHttpClient {
+    int getZ();
 
-    /** The http client */
-    protected final OkHttpClient okHttp;
+    CountMap<E> getEntityCounts();
 
-    public AbstractHttpClient(OkHttpClient okHttp) {
-        this.okHttp = okHttp;
-    }
+    /**
+     * Converts entity type {@link E} to a string.
+     *
+     * @param type the entity type
+     * @return a string
+     */
+    String entityTypeName(E type);
 
-    protected Response makeHttpRequest(Request request) throws IOException {
-        Response response = this.okHttp.newCall(request).execute();
-        if (!response.isSuccessful()) {
-            response.close();
-            throw new RuntimeException("Request was unsuccessful: " + response.code() + " - " + response.message());
-        }
-        return response;
-    }
 }

@@ -18,23 +18,19 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.lucko.spark.fabric;
+package me.lucko.spark.fabric.mixin;
 
-import java.util.function.Predicate;
+import net.minecraft.client.world.ClientEntityManager;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.entity.Entity;
 
-public enum FabricSparkGameHooks {
-    INSTANCE;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.gen.Accessor;
 
-    // Use events from Fabric API later
-    // Return true to abort sending to server
-    private Predicate<String> chatSendCallback = s -> false;
+@Mixin(ClientWorld.class)
+public interface ClientWorldAccessor {
 
-    public void setChatSendCallback(Predicate<String> callback) {
-        this.chatSendCallback = callback;
-    }
-
-    public boolean tryProcessChat(String message) {
-        return this.chatSendCallback.test(message);
-    }
+    @Accessor
+    ClientEntityManager<Entity> getEntityManager();
 
 }

@@ -20,7 +20,7 @@ tasks.withType(JavaCompile) {
 }
 
 minecraft {
-    mappings channel: 'official', version: '1.18.2'
+    mappings channel: 'official', version: '1.19.2'
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
 }
 
@@ -30,7 +30,7 @@ configurations {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.18.2-40.0.1'
+    minecraft 'net.minecraftforge:forge:1.19.2-43.0.0'
     shade project(':spark-common')
 }
 
@@ -52,12 +52,9 @@ shadowJar {
     archiveName = "spark-${project.pluginVersion}-forge.jar"
     configurations = [project.configurations.shade]
 
-    relocate 'okio', 'me.lucko.spark.lib.okio'
-    relocate 'okhttp3', 'me.lucko.spark.lib.okhttp3'
     relocate 'net.kyori.adventure', 'me.lucko.spark.lib.adventure'
     relocate 'net.kyori.examination', 'me.lucko.spark.lib.adventure.examination'
     relocate 'net.bytebuddy', 'me.lucko.spark.lib.bytebuddy'
-    relocate 'org.tukaani.xz', 'me.lucko.spark.lib.xz'
     relocate 'com.google.protobuf', 'me.lucko.spark.lib.protobuf'
     relocate 'org.objectweb.asm', 'me.lucko.spark.lib.asm'
     relocate 'one.profiler', 'me.lucko.spark.lib.asyncprofiler'
