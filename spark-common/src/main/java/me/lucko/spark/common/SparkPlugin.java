@@ -22,6 +22,7 @@ package me.lucko.spark.common;
 
 import me.lucko.spark.api.Spark;
 import me.lucko.spark.common.command.sender.CommandSender;
+import me.lucko.spark.common.heapdump.HeapDumpSummary;
 import me.lucko.spark.common.monitor.ping.PlayerPingProvider;
 import me.lucko.spark.common.platform.PlatformInfo;
 import me.lucko.spark.common.platform.serverconfig.ServerConfigProvider;
@@ -157,5 +158,10 @@ public interface SparkPlugin {
     // TISCM: added interface
     default Sampler.ThreadNodeProcessor getThreadNodesProcessor() {
         return threadNode -> {};
+    }
+
+    // TISCM: added interface
+    default void processHeapDumpSummary(HeapDumpSummary heapDumpSummary)
+    {
     }
 }

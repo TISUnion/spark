@@ -92,6 +92,9 @@ public class HeapAnalysisModule implements CommandModule {
             return;
         }
 
+        // TISCM added modifier hook to heap dump
+        platform.getPlugin().processHeapDumpSummary(heapDump);
+
         SparkHeapProtos.HeapData output = heapDump.toProto(platform, sender);
 
         boolean saveToFile = false;
