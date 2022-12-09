@@ -19,7 +19,7 @@ include (
 //        'spark-sponge7',
 //        'spark-sponge8',
 //        'spark-forge',
-        'spark-fabric',
+//        'spark-fabric',
 //        'spark-nukkit',
 //        'spark-waterdog',
 //        'spark-minestom'

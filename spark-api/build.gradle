@@ -1,4 +1,5 @@
 plugins {
+    id 'maven-publish'
 }
 
 version = '0.1-SNAPSHOT'
@@ -12,24 +13,24 @@ license {
     header = project.file('HEADER.txt')
 }
 
-//publishing {
-//    //repositories {
-//    //    maven {
-//    //        url = 'https://oss.sonatype.org/content/repositories/snapshots'
-//    //        credentials {
-//    //            username = sonatypeUsername
-//    //            password = sonatypePassword
-//    //        }
-//    //    }
-//    //}
-//    publications {
-//        mavenJava(MavenPublication) {
-//            from components.java
-//            pom {
-//                name = 'spark'
-//                description = 'spark is a performance profiling plugin/mod for Minecraft clients, servers and proxies.'
-//                url = 'https://spark.lucko.me/'
-//            }
-//        }
-//    }
-//}
+publishing {
+    //repositories {
+    //    maven {
+    //        url = 'https://oss.sonatype.org/content/repositories/snapshots'
+    //        credentials {
+    //            username = sonatypeUsername
+    //            password = sonatypePassword
+    //        }
+    //    }
+    //}
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            pom {
+                name = 'spark'
+                description = 'spark is a performance profiling plugin/mod for Minecraft clients, servers and proxies.'
+                url = 'https://spark.lucko.me/'
+            }
+        }
+    }
+}
